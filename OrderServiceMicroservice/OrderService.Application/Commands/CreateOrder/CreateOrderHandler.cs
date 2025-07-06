@@ -9,11 +9,13 @@ namespace OrderService.Application.Commands.CreateOrder
     {
         private readonly IOrderRepository _repository;
         private readonly INotificationService _notifier;
+        private readonly IMessagingService _messaging;
 
-        public CreateOrderHandler(IOrderRepository repository, INotificationService notifier)
+        public CreateOrderHandler(IOrderRepository repository, INotificationService notifier, IMessagingService messaging)
         {
             _repository = repository;
             _notifier = notifier;
+            _messaging = messaging;
         }
 
         public async Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -36,6 +38,8 @@ namespace OrderService.Application.Commands.CreateOrder
 
             // 🔔 Notify
             await _notifier.NotifyOrderCreatedAsync(createdOrder);
+
+            await _messaging.PublishOrderCreatedAsync(createdOrder.OrderId, createdOrder.Timestamp);
 
             return createdOrder;
         }

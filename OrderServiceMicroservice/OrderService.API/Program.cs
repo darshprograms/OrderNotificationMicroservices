@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using OrderService.Application.Interfaces;
+using OrderService.Infrastructure.Messaging;
 using OrderService.Infrastructure.Repositories;
 using OrderService.Infrastructure.Services;
 using StackExchange.Redis;
@@ -58,7 +59,7 @@ else
     });
 }
 
-
+builder.Services.AddSingleton<IMessagingService, KafkaMessagingService>();
 
 var app = builder.Build();
 
