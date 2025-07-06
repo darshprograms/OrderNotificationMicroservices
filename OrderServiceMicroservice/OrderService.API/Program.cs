@@ -1,13 +1,15 @@
-using MediatR;
+﻿using MediatR;
+using OrderService.Application.Interfaces;
+using OrderService.Infrastructure.Repositories;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ==============================
-// ?? Configure Services
+// 🔧 Configure Services
 // ==============================
 
-// ? This is the correct syntax for v11
+// ✅ This is the correct syntax for v11
 builder.Services.AddMediatR(typeof(OrderService.Application.Commands.CreateOrder.CreateOrderCommand).GetTypeInfo().Assembly);
 
 // Register API controllers
@@ -16,10 +18,12 @@ builder.Services.AddControllers();
 // Swagger/OpenAPI support (.NET 9 style)
 builder.Services.AddOpenApi();
 
+builder.Services.AddScoped<IOrderRepository, InMemoryOrderRepository>();
+
 var app = builder.Build();
 
 // ==============================
-// ?? Configure Middleware
+// 🚀 Configure Middleware
 // ==============================
 
 if (app.Environment.IsDevelopment())

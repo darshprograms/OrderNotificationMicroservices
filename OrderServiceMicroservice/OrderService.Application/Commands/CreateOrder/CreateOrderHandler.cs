@@ -1,12 +1,20 @@
 ﻿using MediatR;
 using OrderService.Domain.Entities;
 using OrderService.Domain.Enums;
+using OrderService.Application.Interfaces;
 
 namespace OrderService.Application.Commands.CreateOrder
 {
     public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
     {
-        public Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
+        private readonly IOrderRepository _repository;
+
+        public CreateOrderHandler(IOrderRepository repository)
+        {
+            _repository = repository;
+        }
+
+        public async Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var newOrder = new Order
             {
@@ -21,9 +29,8 @@ namespace OrderService.Application.Commands.CreateOrder
                 }).ToList()
             };
 
-            // Later we will: Save to DB, Notify, Publish Kafka etc.
-            return Task.FromResult(newOrder);
+            // ✅ Save the new order
+            return await _repository.CreateOrderAsync(newOrder);
         }
     }
 }
-
