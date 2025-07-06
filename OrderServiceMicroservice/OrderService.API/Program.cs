@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using OrderService.Application.Interfaces;
 using OrderService.Infrastructure.Repositories;
+using StackExchange.Redis;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,17 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IOrderRepository, InMemoryOrderRepository>();
+
+// Redis configuration
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = builder.Configuration.GetValue<string>("Redis:ConnectionString");
+
+    var options = ConfigurationOptions.Parse(configuration);
+    options.AbortOnConnectFail = false;
+
+    return ConnectionMultiplexer.Connect(options);
+});
 
 var app = builder.Build();
 
