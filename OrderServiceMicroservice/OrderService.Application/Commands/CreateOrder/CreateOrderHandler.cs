@@ -8,10 +8,12 @@ namespace OrderService.Application.Commands.CreateOrder
     public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Order>
     {
         private readonly IOrderRepository _repository;
+        private readonly INotificationService _notifier;
 
-        public CreateOrderHandler(IOrderRepository repository)
+        public CreateOrderHandler(IOrderRepository repository, INotificationService notifier)
         {
             _repository = repository;
+            _notifier = notifier;
         }
 
         public async Task<Order> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -30,7 +32,12 @@ namespace OrderService.Application.Commands.CreateOrder
             };
 
             // ✅ Save the new order
-            return await _repository.CreateOrderAsync(newOrder);
+            var createdOrder = await _repository.CreateOrderAsync(newOrder);
+
+            // 🔔 Notify
+            await _notifier.NotifyOrderCreatedAsync(createdOrder);
+
+            return createdOrder;
         }
     }
 }

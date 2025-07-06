@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using OrderService.Application.Interfaces;
 using OrderService.Infrastructure.Repositories;
+using OrderService.Infrastructure.Services;
 using StackExchange.Redis;
 using System.Reflection;
 
@@ -31,6 +32,33 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
     return ConnectionMultiplexer.Connect(options);
 });
+
+// ✅ Conditional registration with SSL bypass for dev only
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHttpClient<INotificationService, NotificationServiceClient>(client =>
+    {
+        client.BaseAddress = new Uri("http://localhost:5070"); // Match your app launch URL
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+    {
+        return new HttpClientHandler
+        {
+            // ⚠️ Development only — skip certificate validation
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+    });
+}
+else
+{
+    // 🔐 In production, use secure validation and real domain
+    builder.Services.AddHttpClient<INotificationService, NotificationServiceClient>(client =>
+    {
+        client.BaseAddress = new Uri("https://production-url-or-service-discovery"); // Replace in real env
+    });
+}
+
+
 
 var app = builder.Build();
 
