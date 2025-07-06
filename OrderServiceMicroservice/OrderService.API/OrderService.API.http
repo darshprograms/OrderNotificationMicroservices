@@ -1,6 +1,6 @@
-@OrderService_HostAddress = http://localhost:5070
+﻿@OrderService_HostAddress = http://localhost:5070
 
-### ?? Create a New Order
+### 🚀 Create a New Order
 POST {{OrderService_HostAddress}}/orders
 Content-Type: application/json
 
@@ -18,6 +18,24 @@ Content-Type: application/json
   ]
 }
 
-### ?? Ping Endpoint (Optional)
-GET {{OrderService_HostAddress}}/orders
+### 🔍 Get Order by ID
+# Replace the ID below with a valid orderId from Create Order response
+GET {{OrderService_HostAddress}}/orders/REPLACE-WITH-ORDER-ID
 Accept: application/json
+
+### 📬 Optional: Ping Notification Controller
+POST {{OrderService_HostAddress}}/notification
+Content-Type: application/json
+
+{
+  "orderId": "00000000-0000-0000-0000-000000000000",
+  "customerId": 101,
+  "timestamp": "2024-07-05T12:00:00Z",
+  "status": "Pending",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
+}
